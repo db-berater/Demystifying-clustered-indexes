@@ -1,0 +1,6 @@
+- Korrektur der Links für Download (after deployment)
+Clustered Index vs HEAP
+- IO at key lookup
+- fragmentation
+- forwarded records vs. page splits
+- 
