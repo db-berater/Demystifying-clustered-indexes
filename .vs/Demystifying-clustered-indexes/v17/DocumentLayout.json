@@ -1,0 +1,85 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\uwe_r\\source\\repos\\db-berater\\Demystifying-clustered-indexes\\",
+  "Documents": [],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{25f3feea-a56f-40f5-9ad6-b85f135d419a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3eb44d79-dda1-4580-b810-0808975173e4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{ed7d6f85-175b-4b57-9887-71fe8b865fc8}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{69b600ca-607b-4b9e-8d51-1df1ff909b7e}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{ed7d6f85-175b-4b57-9887-71fe8b865fc8}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:5:0:{ed7d6f85-175b-4b57-9887-71fe8b865fc8}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{956e1b22-878b-499b-ac5c-2705c05370ff}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{956e1b22-878b-499b-ac5c-2705c05370ff}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:3:0:{956e1b22-878b-499b-ac5c-2705c05370ff}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{ed7d6f85-175b-4b57-9887-71fe8b865fc8}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{a1fee584-fec4-4484-85e6-674c68fe5766}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{ed7d6f85-175b-4b57-9887-71fe8b865fc8}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{956e1b22-878b-499b-ac5c-2705c05370ff}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
