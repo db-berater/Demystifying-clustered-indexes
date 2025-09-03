@@ -1,0 +1,40 @@
+{
+		"CollectIoStats":true,
+		"CollectTimeStats":true,
+		"CommandTimeout":0,
+		"ConnectionTimeout":15,
+		"DelayBetweenQueries":0,
+		"EnableConnectionPooling":true,
+		"ForceDataRetrieval":false,
+		"KillQueriesOnCancel":true,
+		"MainDbConnectionInfo":
+		{
+				"ApplicationIntent":0,
+				"ConnectTimeout":15,
+				"Database":"ERP_Demo",
+				"EnablePooling":true,
+				"IntegratedAuth":true,
+				"Login":"",
+				"MaxPoolSize":2,
+				"Password":"",
+				"Server":"SQLServer"
+		},
+		"MainQuery":"EXEC dbo.start_process\r\n\t@scancode = '0000000000',\r\n\t@ship_id = '4711';",
+		"NumIterations":20,
+		"NumThreads":5,
+		"ParamDbConnectionInfo":
+		{
+				"ApplicationIntent":0,
+				"ConnectTimeout":0,
+				"Database":"",
+				"EnablePooling":true,
+				"IntegratedAuth":true,
+				"Login":"",
+				"MaxPoolSize":0,
+				"Password":"",
+				"Server":""
+		},
+		"ParamMappings":[],
+		"ParamQuery":"",
+		"ShareDbSettings":true
+}

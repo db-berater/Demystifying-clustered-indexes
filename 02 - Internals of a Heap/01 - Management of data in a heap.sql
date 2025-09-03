@@ -5,6 +5,9 @@
 	Summary:	This script demonstrates the organisation of Leaf Pages in a Heap.
 				It shows the organisation/management of Leaf Pages in the IAM Page.
 
+				THIS SCRIPT IS PART OF THE TRACK:
+					Session - Demystifying Clustered Indexes
+
 	Date:		June 2025
 
 	SQL Server Version: >= 2016
@@ -55,7 +58,7 @@ GO
 SET STATISTICS IO ON;
 GO
 
-SELECT sys.fn_PhysLocFormatter(%%physloc%%), * FROM heap.customers;
+SELECT sys.fn_PhysLocFormatter(%%physloc%%)	AS record_location, * FROM heap.customers;
 GO
 
 
@@ -77,16 +80,16 @@ GO
 
 /*
 	Check the IAM Page
-	(1:2556254:0)
+	(1:2516991:0)
 */
 DBCC TRACEON (3604);
-DBCC PAGE (0, 1, 2556254, 3);
+DBCC PAGE (0, 1, 2516991, 3);
 GO
 
 /*
 	From the IAM Page we can go to the first Leaf Page
 */
-DBCC PAGE (0, 1, 155640, 3) WITH TABLERESULTS;
+DBCC PAGE (0, 1, 182304, 3) WITH TABLERESULTS;
 GO
 
 /* What data pages belong to the table? */

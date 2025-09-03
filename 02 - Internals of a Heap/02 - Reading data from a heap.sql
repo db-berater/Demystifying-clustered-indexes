@@ -5,6 +5,9 @@
 	Summary:	This demo shows how Microsoft SQL Server will read data from
 				a heap table.
 
+				THIS SCRIPT IS PART OF THE TRACK:
+					Session - Demystifying Clustered Indexes
+
 	Date:		June 2025
 
 	SQL Server Version: >= 2016
@@ -97,7 +100,30 @@ ALTER EVENT SESSION [read_heap_pages] ON SERVER
 GO
 
 EXEC dbo.sp_read_xevent_locks
-		@xevent_name = N'read_heap_pages';
+		@xevent_name = N'read_heap_pages'
+		, @filter_condition = N'activity_id LIKE N''E5D46084-B16A-4323-9F37-8B37700755EF%''';
+GO
+
+/* Now we can drop the extended event */
+IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'read_heap_pages')
+BEGIN
+	RAISERROR (N'dropping existing extended event session [read_heap_pages]...', 0, 1) WITH NOWAIT;
+	DROP EVENT SESSION [read_heap_pages] ON SERVER;
+END
+GO
+
+/* The same process will happen if you filter your data! */
+SELECT * FROM heap.customers
+WHERE	c_custkey = 10;
+GO
+
+ALTER EVENT SESSION [read_heap_pages] ON SERVER
+	DROP EVENT sqlserver.lock_acquired;
+GO
+
+EXEC dbo.sp_read_xevent_locks
+		@xevent_name = N'read_heap_pages'
+		, @filter_condition = N'activity_id LIKE N''EFEF3EF0-32C2-4678-9227-27AE56C974AA%''';
 GO
 
 /* Now we can drop the extended event */

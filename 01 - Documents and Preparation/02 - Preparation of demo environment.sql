@@ -5,19 +5,13 @@
 	Summary:	This script creates all necessary schemata and required indexes
 				on source tables for better performance
 
-	Date:		June 2025
+				THIS SCRIPT IS PART OF THE TRACK:
+					Session - Demystifying Clustered Indexes
+
+	Date:		October 2024
+	Revion:		August 2025
 
 	SQL Server Version: >= 2016
-	------------------------------------------------------------------------------
-	Written by Uwe Ricken, db Berater GmbH
-
-	This script is intended only as a supplement to demos and lectures
-	given by Uwe Ricken.  
-  
-	THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF 
-	ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED 
-	TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-	PARTICULAR PURPOSE.
 	============================================================================
 */
 SET NOCOUNT ON;
@@ -47,6 +41,9 @@ BEGIN
 	RAISERROR ('creating schema [cluster]', 0, 1) WITH NOWAIT;
 	EXEC sp_executesql N'CREATE SCHEMA [cluster] AUTHORIZATION dbo;';
 END
+GO
+
+RAISERROR ('creating procedure [dbo].[sp_read_xevent_locks]', 0, 1) WITH NOWAIT;
 GO
 
 CREATE OR ALTER PROCEDURE dbo.sp_read_xevent_locks
@@ -104,43 +101,71 @@ BEGIN
 
 	IF @filter_condition IS NOT NULL
 	BEGIN
-		DECLARE	@sql_stmt NVARCHAR(MAX) = N'SELECT	activity_id,
-		[timestamp],
-		event_name,
-		batch_text,
-		resource_type,
-		lock_mode,
-		resource_0,
-		resource_1,
-		resource_2,
-		object_name,
-		associated_object_id,
-		index_id,
-		index_name
-FROM	#temp_result
+		DECLARE	@sql_stmt NVARCHAR(MAX) = N'SELECT	r.activity_id,
+		r.[timestamp],
+		r.event_name,
+		r.batch_text,
+		r.resource_type,
+		CASE WHEN r.resource_type = N''PAGE''
+				THEN dpi.page_type_desc
+				ELSE NULL
+		END			AS	page_type,
+		r.lock_mode,
+		r.resource_0,
+		r.resource_1,
+		r.resource_2,
+		r.object_name,
+		r.associated_object_id,
+		r.index_id,
+		r.index_name
+FROM	#temp_result AS r
+		OUTER APPLY sys.dm_db_page_info
+					(
+						DB_ID(),
+						1,
+						CASE WHEN r.resource_type = N''PAGE''
+								THEN CAST(r.resource_0 AS BIGINT)
+								ELSE 0
+						END,
+						N''DETAILED''
+					) AS dpi
 WHERE ' + @filter_condition + N' 
 ORDER BY
 		timestamp,
-		TRY_CAST(SUBSTRING(activity_id, 38, 255) AS INT);';
+		TRY_CAST(SUBSTRING(r.activity_id, 38, 255) AS INT);';
 		EXEC sp_executesql @sql_stmt;
 	END
 	ELSE
-		SELECT	activity_id,
-				[timestamp],
-				event_name,
-				batch_text,
-				resource_type,
-				lock_mode,
-				resource_0,
-				resource_1,
-				resource_2,
-				object_name,
-				associated_object_id,
-				index_id,
-				index_name
-		FROM	#temp_result
+		SELECT	r.activity_id,
+				r.[timestamp],
+				r.event_name,
+				r.batch_text,
+				r.resource_type,
+				CASE WHEN r.resource_type = N'PAGE'
+					 THEN dpi.page_type_desc
+					 ELSE NULL
+				END			AS	page_type,
+				r.lock_mode,
+				r.resource_0,
+				r.resource_1,
+				r.resource_2,
+				r.object_name,
+				r.associated_object_id,
+				r.index_id,
+				r.index_name
+		FROM	#temp_result AS r
+				OUTER APPLY sys.dm_db_page_info
+							(
+								DB_ID(),
+								1,
+								CASE WHEN r.resource_type = N'PAGE'
+									 THEN CAST(r.resource_0 AS BIGINT)
+									 ELSE 0
+								END,
+								N'DETAILED'
+							) AS dpi
 		ORDER BY
-				timestamp ASC,
-				TRY_CAST(SUBSTRING(activity_id, 38, 255) AS INT);
+				r.timestamp ASC,
+				TRY_CAST(SUBSTRING(r.activity_id, 38, 255) AS INT);
 END
 GO

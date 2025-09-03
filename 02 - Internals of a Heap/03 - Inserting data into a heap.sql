@@ -1,9 +1,12 @@
 /*
 	============================================================================
-	File:		03 - INSERT single data rows into the HEAP.sql
+	File:		03 - Inserting data into a heap.sql
 
-	Summary:	This demo shows the problems when we try to insert data into
-				a heap table
+	Summary:	This demo shows how internal allocation of resources will work
+				when data are inserted into a heap table.
+
+				THIS SCRIPT IS PART OF THE TRACK:
+					Session - Demystifying Clustered Indexes
 
 	Date:		June 2025
 
@@ -27,158 +30,70 @@ GO
 USE ERP_Demo;
 GO
 
-/*
-	===================================================================================
-	Demo: Storage by using PFS for checking free space!
-	===================================================================================
-*/
+/* Let's drop the demo table if it exists */
 DROP TABLE IF EXISTS heap.customers;
 GO
 
-/*
-	We create a new table [heap].[customers] which can store max 3 rows on one data page.
-	Note, that you can store 8,060 bytes on one single data page!
-*/
 CREATE TABLE heap.customers
 (
-	Id	INT			NOT NULL	IDENTITY (1, 1),
-	c1	CHAR(2500)	NOT NULL
+	c_custkey		BIGINT			NOT NULL,
+	c_mktsegment	CHAR(10)		NULL,
+	c_nationkey		INT				NOT NULL,
+	c_name			VARCHAR(25)		NULL,
+	c_address		VARCHAR(40)		NULL,
+	c_phone			CHAR(15)		NULL,
+	c_acctbal		MONEY			NULL,
+	c_comment		VARCHAR(118)	NULL
 );
 GO
 
-CHECKPOINT;
-GO
-
--- Calculation for the amount of data for one page:
 /*
-	Pagesize:	8192 Bytes
-	Header:		  96 Bytes
-	SlotArray:	  36 Bytes
-	Data:		8060 Bytes
-
-	1 Record has a size of 2510 Bytes (4 + 2500 + 4 (RowHeader) + 2 (Slot Array))
-	8060 Bytes / 2510 Bytes = 3 records + 1556 Bytes!
-*/ 
-
--- Let's insert 3 rows!
-BEGIN TRANSACTION InsertRecords
+	Execute the script "02 - insert records in a heap.sql to create an
+	extended event "write_heap_data" for the detailed analysis
+*/
+INSERT INTO heap.customers
+(c_custkey, c_mktsegment, c_nationkey, c_name, c_address, c_phone, c_acctbal, c_comment)
+VALUES
+(1, 'IT SERVICE', 6, 'db Berater GmbH', 'Buechenweg 4, 64390 Erzhausen', '01234-9876', 0, 'best SQL Expert :)');
 GO
 
-	INSERT INTO heap.customers (c1)
-	VALUES
-	('Uwe Ricken'),
-	('Beate Ricken'),
-	('Alicia Ricken');
-	GO
-
-	SELECT	[Current LSN],
-            Operation,
-            Context,
-            [Log Record Length],
-            [Log Reserve],
-            AllocUnitName,
-            [Page ID],
-            [Slot ID],
-            PartitionId,
-            [Lock Information]
-	FROM	dbo.get_transaction_info(N'InsertRecords');
-
-COMMIT TRANSACTION InsertRecords
+/* After the record has been inserted we stop the recording ... */
+ALTER EVENT SESSION [write_heap_pages] ON SERVER
+	DROP EVENT sqlserver.lock_acquired;
 GO
 
--- What pages will be allocated by the table
-SELECT	p.*, h.*
-FROM	dbo.demo_table AS h
-		CROSS APPLY sys.fn_PhysLocCracker(%%physloc%%) AS p;
+/* ... and run the analysis of the process */
+EXEC dbo.sp_read_xevent_locks
+		@xevent_name = N'write_heap_pages'
+		, @filter_condition = N'activity_id LIKE N''ECF7DE81-E42A-456C-BB67-87D24D5B8004%''';
 GO
 
-DBCC TRACEON (3604);
-DBCC PAGE (0, 1, 1, 3);
+/*
+	When we insert a new record to the table the locking is a bit different
 
--- look into the transaction protocol!
-SELECT	[Current LSN],
-		Operation,
-		Context,
-		[Log Record Length],
-		AllocUnitName,
-		Description
-FROM	sys.fn_dblog(NULL, NULL)
-WHERE	Context != 'LCX_NULL' AND
-		AllocUnitName NOT LIKE 'sys.%' AND
-		LEFT([Current LSN], LEN([Current LSN]) - 5) IN
-		(
-			SELECT	LEFT([Current LSN], LEN([Current LSN]) - 5)
-			FROM	sys.fn_dblog(NULL, NULL)
-			WHERE	[Transaction Name] = 'InsertRecords'
-		)
-ORDER BY
-		[Current LSN];
+	Execute the script "02 - insert records in a heap.sql to create an
+	extended event "write_heap_data" for the detailed analysis
+*/
+INSERT INTO heap.customers
+(c_custkey, c_mktsegment, c_nationkey, c_name, c_address, c_phone, c_acctbal, c_comment)
+VALUES
+(1, 'IT SERVICE', 6, 'db Berater GmbH', 'Buechenweg 4, 64390 Erzhausen', '01234-9876', 0, 'best SQL Expert :)');
 GO
 
--- flush the changes to disk
-CHECKPOINT;
+/* After the record has been inserted we stop the recording ... */
+ALTER EVENT SESSION [write_heap_pages] ON SERVER
+	DROP EVENT sqlserver.lock_acquired;
 GO
 
-BEGIN TRANSACTION InsertRecords;
+/* ... and run the analysis of the process */
+EXEC dbo.sp_read_xevent_locks
+		@xevent_name = N'write_heap_pages'
+		, @filter_condition = N'activity_id LIKE N''AA3D9DAE-87ED-446C-A9A6-340FE3A14969%''';
 GO
 
-	INSERT INTO dbo.demo_table (c1)
-	VALUES
-	('Katharina Ricken')
-	GO
-
-	INSERT INTO dbo.demo_table (c1)
-	VALUES
-	('Emma Ricken');
-	GO
-
-	INSERT INTO dbo.demo_table (c1)
-	VALUES
-	('Josie Ricken');
-	GO
-
-COMMIT TRANSACTION InsertRecords;
+IF EXISTS (SELECT * FROM sys.server_event_sessions WHERE name = N'write_heap_pages')
+BEGIN
+	RAISERROR (N'dropping existing extended event session [write_heap_pages]...', 0, 1) WITH NOWAIT;
+	DROP EVENT SESSION [write_heap_pages] ON SERVER;
+END
 GO
-
--- What pages will be allocated by the table
-SELECT	p.*, h.*
-FROM	dbo.demo_table AS h
-		CROSS APPLY sys.fn_PhysLocCracker(%%physloc%%) AS p;
-GO
-
--- look into the transaction protocol!
-SELECT	[Current LSN],
-		Operation,
-		Context,
-		[Log Record Length],
-		AllocUnitId,
-		AllocUnitName,
-		Description
-FROM	sys.fn_dblog(NULL, NULL)
-WHERE	Context != 'LCX_NULL' AND
-		AllocUnitName NOT LIKE 'sys.%' AND
-		LEFT([Current LSN], LEN([Current LSN]) - 5) IN
-		(
-			SELECT	LEFT([Current LSN], LEN([Current LSN]) - 5)
-			FROM	sys.fn_dblog(NULL, NULL)
-			WHERE	[Transaction Name] = 'InsertRecords'
-		)
-ORDER BY
-		[Current LSN];
-GO
-
--- what is the free space on the data page of the first two records?
-DBCC TRACEON (3604);
-DBCC PAGE ('demo_db', 1, 1, 3);
-GO
-
--- Look on the page header of both affected pages
-DBCC TRACEON (3604);
-DBCC PAGE ('demo_db', 1, 289, 0);
-DBCC PAGE ('demo_db', 1, 290, 0);
-GO
-
--- Clean the kitchen!
-IF OBJECT_ID('dbo.demo_table', 'U') IS NOT NULL
-	DROP TABLE dbo.demo_table;
-	GO

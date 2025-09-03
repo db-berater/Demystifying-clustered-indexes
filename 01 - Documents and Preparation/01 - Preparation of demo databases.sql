@@ -6,10 +6,10 @@
 				the backup medium for distribution of data.
 				
 				THIS SCRIPT IS PART OF THE TRACK:
-					Session - Introduction to Partitioning
+					Session - Demystifying Clustered Indexes
 
 	Date:		October 2024
-	Revion:		November 2024
+	Revion:		August 2025
 
 	SQL Server Version: >= 2016
 	============================================================================

@@ -1,0 +1,47 @@
+{
+		"CollectIoStats":true,
+		"CollectTimeStats":true,
+		"CommandTimeout":0,
+		"ConnectionTimeout":15,
+		"DelayBetweenQueries":0,
+		"EnableConnectionPooling":false,
+		"ForceDataRetrieval":false,
+		"KillQueriesOnCancel":true,
+		"MainDbConnectionInfo":
+		{
+				"AdditionalParameters":"",
+				"ApplicationIntent":0,
+				"AzureMFA":false,
+				"ConnectTimeout":15,
+				"Database":"ERP_Demo",
+				"EnablePooling":false,
+				"EncryptOption":"True",
+				"IntegratedAuth":true,
+				"Login":"",
+				"MaxPoolSize":2,
+				"Password":"",
+				"Server":"SQLServer",
+				"TrustServerCertificate":true
+		},
+		"MainQuery":"EXEC dbo.read_heap_data;",
+		"NumIterations":10,
+		"NumThreads":20,
+		"ParamDbConnectionInfo":
+		{
+			"AdditionalParameters":"",
+			"ApplicationIntent":0,
+			"AzureMFA":false,
+			"ConnectTimeout":0,
+			"Database":"",
+			"EnablePooling":true,
+			"EncryptOption":"False",
+			"IntegratedAuth":true,
+			"Login":"",
+			"MaxPoolSize":0,
+			"Password":"",
+			"Server":"(local)",
+			"TrustServerCertificate":true
+		},"ParamMappings":[],
+		"ParamQuery":"",
+		"ShareDbSettings":true
+}
