@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\01 - Documents and Preparation",
+    "\\02 - Internals of a Heap",
+    "\\97 - Extended Events"
   ],
+  "SelectedNode": "\\02 - Internals of a Heap\\03 - Inserting data into a heap.sql",
   "PreviewInSolutionExplorer": false
 }

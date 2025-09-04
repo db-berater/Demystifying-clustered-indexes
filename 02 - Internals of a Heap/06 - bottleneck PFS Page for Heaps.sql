@@ -1,6 +1,6 @@
 /*
 	============================================================================
-	File:		03 - Inserting data into a heap.sql
+	File:		06 - Inserting data into a heap.sql
 
 	Summary:	This demo shows how internal allocation of resources will work
 				when data are inserted into a heap table.
